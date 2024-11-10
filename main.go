@@ -2,6 +2,7 @@ package main
 
 import "net"
 import "fmt"
+import "log"
 
 type Server struct {
 	address string
@@ -23,6 +24,8 @@ func (server *Server) acceptLoop() {
 			fmt.Println("Error accepting connection:", err)
 			continue
 		}
+
+		fmt.Println("Accepted connection from: ", conn.RemoteAddr())
 
 		go server.readLoop(conn)
 	}
@@ -53,6 +56,8 @@ func (server *Server) Start() error {
 	defer listener.Close()
 	server.listener = listener
 
+	go server.acceptLoop()
+
 	// blocks return until quitChannel is closed
 	<-server.quitChannel
 
@@ -60,4 +65,6 @@ func (server *Server) Start() error {
 }
 
 func main() {
+	server := NewServer(":8000")
+	log.Fatal(server.Start())
 }
